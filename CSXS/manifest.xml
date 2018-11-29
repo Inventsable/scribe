@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ExtensionManifest ExtensionBundleId="com.scribe" ExtensionBundleVersion="1.0.0" Version="7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ExtensionList>
+    <Extension Id="com.scribe.panel" Version="1.0.0" />
+  </ExtensionList>
+  <ExecutionEnvironment>
+    <HostList>
+      <Host Name="ILST" Version="[18,99.9]" />
+      <Host Name="AEFT" Version="[15,99.9]" />
+    </HostList>
+    <LocaleList>
+      <Locale Code="All" />
+    </LocaleList>
+    <RequiredRuntimeList>
+      <RequiredRuntime Name="CSXS" Version="7.0" />
+    </RequiredRuntimeList>
+  </ExecutionEnvironment>
+  <DispatchInfoList>
+    <Extension Id="com.scribe.panel">
+      <DispatchInfo>
+        <Resources>
+          <MainPath>./client/index.html</MainPath>
+          <CEFCommandLine />
+        </Resources>
+        <Lifecycle>
+          <AutoVisible>true</AutoVisible>
+        </Lifecycle>
+        <UI>
+          <Type>Panel</Type>
+          <Menu>Scribe</Menu>
+          <Geometry>
+            <Size>
+              <Height>50</Height>
+              <Width>200</Width>
+            </Size>
+            <!-- <MaxSize>
+              <Height>400</Height>
+              <Width>600</Width>
+            </MaxSize>
+            <MinSize>
+              <Height>100</Height>
+              <Width>70</Width>
+            </MinSize> -->
+          </Geometry>
+          <Icons>
+             <Icon Type="Normal">./UI/iconLight.png</Icon>
+             <Icon Type="RollOver">./UI/iconLightRollover.png</Icon>
+          </Icons>
+        </UI>
+      </DispatchInfo>
+    </Extension>
+  </DispatchInfoList>
+</ExtensionManifest>

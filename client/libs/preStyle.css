@@ -1,0 +1,201 @@
+:root {
+  font-size: 12px;
+  --quad: cubic-bezier(0.48, 0.04, 0.52, 0.96);
+  --quart: cubic-bezier(0.76, 0.00, 0.24, 1.00);
+  --quint: cubic-bezier(0.84, 0.00, 0.16, 1.00);
+  --color-bg: #323232;
+  --color-scroll: #2a2a2a;
+  --color-scroll-thumb: #3e3e3e;
+  --color-scroll-thumb-hover: #525252;
+  --color-ui-idle: #3d3d3d;
+  --color-ui-active: #4b4b4b;
+  --color-ui-ultra: #797979;
+  --color-text-idle: #b9b9b9;
+  --color-text-hover: #c0c0c0;
+  --color-text-active: #d0d0d0;
+  --color-ui-selected: #46a0f5;
+  --color-ui-border: #3e3e3e;
+  --color-ui-hover: #292929;
+  --color-text: #a1a1a1;
+  --font-size: .875rem;
+
+  --color-R: #eb6d5a;
+  --color-G: #66ff3b;
+  --color-B: #3593eb;
+
+  --panel-height: 50px;
+  --panel-width: 50px;
+  font-family: Rubik;
+  color: #a1a1a1;
+  margin: .5rem .25rem 0px .25rem;
+  background-color: var(--color-bg);
+}
+
+svg {
+  width: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  background: var(--color-scroll);
+}
+::-webkit-scrollbar-thumb {
+  width: var(--thumb-width);
+  background: var(--color-scroll-thumb);
+  border-radius: var(--scroll-radius);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scroll-thumb-hover);
+}
+::-webkit-scrollbar-corner, ::-webkit-scrollbar-resizer, ::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* ::-webkit-scrollbar-button {
+  display: none;
+} */
+
+
+#app {
+  /* max-width: 50px; */
+  /* min-width: 30px; */
+  box-sizing: border-box;
+  /* border: 2px solid red; */
+  /* height: var(--panel-height); */
+  width: 100%;
+}
+
+.visualizerModKeys {
+  display: grid;
+  grid-column-gap: .25rem;
+  background-color: var(--color-ui-hover);
+}
+[class^="modKey"] {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.modKey-Shift-Active { background-color: var(--color-G);}
+.modKey-Ctrl-Active { background-color: var(--color-R);}
+.modKey-Alt-Active { background-color: var(--color-B);}
+
+
+/* @font-face {
+  font-family: 'Swap-Font';
+  src:
+  url('../../UI/fonts/Swap-Font.ttf?ehpwfl') format('truetype'),
+  url('../../UI/fonts/Swap-Font.woff?ehpwfl') format('woff'),
+  url('../../UI/fonts/Swap-Font.svg?ehpwfl#Swap-Font') format('svg');
+  font-weight: normal;
+  font-style: normal;
+} */
+
+.set {
+  width: 100%;
+  height: 2rem;
+  font-size: 1.25rem;
+  cursor: default;
+  user-select: none;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+/* icomoon font */
+/* [class^="swap-icon-"], [class*=" swap-icon-"] {
+  font-family: 'Swap-Font' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+.swap-icon-swapH:before {
+  content: "\e907";
+}
+.swap-icon-swapV:before {
+  content: "\e908";
+}
+.swap-icon-artboard:before {
+  content: "\e900";
+}
+.swap-icon-doc:before {
+  content: "\e901";
+}
+.swap-icon-layer:before {
+  content: "\e902";
+}
+.swap-icon-selection:before {
+  content: "\e903";
+}
+.swap-icon-both:before {
+  content: "\e904";
+}
+.swap-icon-fill:before {
+  content: "\e905";
+}
+.swap-icon-stroke:before {
+  content: "\e906";
+}
+.swap-icon-close:before {
+  content: "\e91f";
+}
+.swap-icon-angleDown:before {
+  content: "\e926";
+}
+.swap-icon-angleLeft:before {
+  content: "\e927";
+}
+.swap-icon-angleRight:before {
+  content: "\e928";
+}
+.swap-icon-angleUp:before {
+  content: "\e929";
+}
+.swap-icon-angleUpDown:before {
+  content: "\e915";
+} */
+
+/* Scrollbar */
+  ::-webkit-scrollbar {
+    /* if none, uncomment: */
+    /* display: none */
+    background: #2A2A2A;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #3E3E3E;
+    border-radius: 20px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #525252;
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  ::-webkit-scrollbar:single-button {
+    /* margin: 1rem 0px; */
+  }
+
+  ::-webkit-scrollbar-button:start {
+    /* background-image: url('./scrollbarUpBtnAlt.png'); */
+  }
+
+  ::-webkit-scrollbar-button:end {
+    /* background-image: url('./scrollbarDownBtnAlt.png'); */
+  }
+
+  ::-webkit-scrollbar-button:start:hover {
+    /* background-image: url('./scrollbarUpBtnAltHover.png'); */
+  }
+
+  ::-webkit-scrollbar-button:end:hover {
+    /* background-image: url('./scrollbarDownBtnAltHover.png'); */
+  }
