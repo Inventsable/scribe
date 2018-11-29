@@ -12,9 +12,13 @@ git clone https://github.com/Inventsable/Scribe.git
 
 # to-do
 
-* ~~Dynamic input makes placeholder same as active layer name~~
-* ~~Wake/Sleep/Focus on input reads full current layer list~~
-* ~~Real-time active layer detection~~
-* ~~Ctrl + Enter renames layer, ctrl + up/down to navigate~~
 * Optional nested groups and parent/children naming (ctrl + left/right)
 * Renaming multiple layers produces sequential names
+
+# requests from [promotional reddit thread](https://www.reddit.com/r/AdobeIllustrator/comments/a1eglc/working_on_an_open_source_panel_to_make_layer/):
+
+* Support for artboards
+* Automatic stripping of " copy" from layer/artboard names
+* Optional prefix/suffix inputs
+* Photoshop and After Effects support
+* Quick change of color for labels
