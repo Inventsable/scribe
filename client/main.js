@@ -31,18 +31,32 @@ Vue.component('scribe', {
   template: `
     <div v-if="!hide" class="texter">
       <div class="label" :style="'background-color: ' + label"></div>
+      <input
+        v-if="showPrefix"
+        ref="prefix"
+        :class="isWake ? 'texter-prefix' : 'texter-prefix-idle'"
+        v-model="prefix" 
+        placeholder="prefix"/>
       <input 
-          ref="input"
-          :class="isWake ? 'texter-input' : 'texter-idle'"
-          @keyup.enter="submitTest(msg)" 
-          @keyup.tab="autocomplete(placeholder)"
-          v-model="msg" 
-          :placeholder="placeholder"/>
+        ref="input"
+        :class="isWake ? 'texter-input' : 'texter-idle'"
+        @keyup.enter="submitTest(msg)" 
+        @keyup.tab="autocomplete(placeholder)"
+        v-model="msg" 
+        :placeholder="placeholder"/>
+      <input
+        v-if="showSuffix"
+        ref="suffix"
+        :class="isWake ? 'texter-prefix' : 'texter-prefix-idle'"
+        v-model="suffix" 
+        placeholder="suffix"/>
     </div>
   `,
   data() {
     return {
+      prefix: '',
       label: '',
+      suffix: '',
       hide: false,
       msg: '',
       index: 0,
@@ -56,11 +70,11 @@ Vue.component('scribe', {
       console.log(evt)
     },
     travelUp() {
-      console.log('Travelling up...')
+      // console.log('Travelling up...')
       csInterface.evalScript(`travelUpLayer()`);
     },
     travelDown() {
-      console.log('Travelling down...')
+      // console.log('Travelling down...')
       csInterface.evalScript(`travelDownLayer()`);
     },
     updateSelection(layer) {
@@ -110,6 +124,12 @@ Vue.component('scribe', {
   computed: {
     isWake: function() {
       return this.$root.isWake;
+    },
+    showPrefix: function() {
+      return this.$root.showPrefix;
+    },
+    showSuffix: function() {
+      return this.$root.showSuffix;
     }
     // placeholder: function () {
     //   return `layer name`;
@@ -120,10 +140,11 @@ Vue.component('scribe', {
     Event.$on('clearScribe', this.clearScribe);
     Event.$on('clearScribe', this.clearScribe);
     Event.$on('updateSelection', this.updateSelection);
-    Event.$on('TravelUp', this.travelUp)
-    Event.$on('TravelDown', this.travelDown)
+    Event.$on('TravelUp', this.travelUp);
+    Event.$on('TravelDown', this.travelDown);
+    Event.$on('suffixToggle', this.toggleSuffix);
+    Event.$on('prefixToggle', this.togglePrefix);
   }
-  
 })
 
 Vue.component('scanner', {
@@ -166,7 +187,7 @@ Vue.component('scanner', {
     scanSelection(state) {
       var self = this;
       if (state)
-        this.timer.selection = setInterval(self.selectionCheck, 100);
+        this.timer.selection = setInterval(self.selectionCheck, 250);
     },
     stopSelectionScan() {
       clearInterval(this.timer.selection);
@@ -245,46 +266,30 @@ Vue.component('event-manager', {
       this.activeList = mirror;
     },
     clearMods() {
-      this.Shift = false;
-      this.Alt = false;
-      this.Ctrl = false;
+      this.Shift = false, this.Alt = false, this.Ctrl = false;
       this.activeList = [];
     },
     updateMods() {
-      this.Ctrl = this.$root.Ctrl;
-      this.Shift = this.$root.Shift;
-      this.Alt = this.$root.Alt;
+      this.Ctrl = this.$root.Ctrl, this.Shift = this.$root.Shift, this.Alt = this.$root.Alt;
       this.activeMods();
     },
     onMouseOutside(e, el) {
-      // console.log(e)
       this.$root.parseModifiers(e);
     },
     onClickOutside(e, el) {
-      // console.log(e)
       if (this.$root.showCrosshair) {
         Event.$emit('setMarker');
       }
     },
     onKeyDownOutside(e, el) {
-      // console.log(e.key)
       this.$root.parseModifiers(e);
     },
     onKeyUpOutside(e, el) {
-      // console.log(e)
-      // if (this.$root.Ctrl) {
-      //   if (e.key == 'ArrowDown') {
-      //     Event.$emit('TravelUp');
-      //   } else if (e.key == 'ArrowUp') {
-      //     Event.$emit('TravelDown');
-      //   }
-      // } else {
-        if (e.key == 'ArrowDown') {
-          Event.$emit('TravelUp');
-        } else if (e.key == 'ArrowUp') {
-          Event.$emit('TravelDown');
-        }
-      // }
+      if (e.key == 'ArrowDown') {
+        Event.$emit('TravelUp');
+      } else if (e.key == 'ArrowUp') {
+        Event.$emit('TravelDown');
+      }
       this.$root.parseModifiers(e);
     },
   },
@@ -299,6 +304,8 @@ var app = new Vue({
     macOS: false,
     panelWidth: 100,
     panelHeight: 200,
+    showPrefix: true,
+    showSuffix: true,
     persistent: true,
     // storage: window.localStorage,
     activeApp: csInterface.hostEnvironment.appName,
@@ -310,8 +317,18 @@ var app = new Vue({
     context: {
       menu: [
         { id: "refresh", label: "Refresh panel", enabled: true, checkable: false, checked: false, },
-        { id: "persistent", label: "Persistent Y/N", enabled: true, checkable: true, checked: true, },
-
+        // { id: "persistent", label: "Persistent Y/N", enabled: true, checkable: true, checked: true, },
+        { label: "---" },
+        { id: "prefix", label: "Show prefix", enabled: true, checkable: true, checked: true, },
+        { id: "suffix", label: "Show suffix", enabled: true, checkable: true, checked: true, },
+        { label: "---" },
+        {
+          id: "autocorrect", label: "Autocorrect copies", menu: [
+            { id: "isauto", label: "Autocorrecting", enabled: true, checkable: true, checked: true, },
+            { label: "---" },
+            { id: "sequence", label: "As sequence", enabled: true, checkable: true, checked: true, ingroup: true },
+            { id: "blank", label: "Leave blank", enabled: true, checkable: true, checked: false, ingroup: true } ]
+        },
       ],
     },
   },
@@ -334,35 +351,53 @@ var app = new Vue({
     window.addEventListener('resize', this.handleResize);
     Event.$on('modsUpdate', self.parseModifiers);
     Event.$on('updateStorage', self.updateStorage);
+    csInterface.addEventListener('documentAfterActivate', self.reset);
+    csInterface.addEventListener('applicationActive', self.activate);
     csInterface.addEventListener(CSInterface.THEME_COLOR_CHANGED_EVENT, self.appThemeChanged);
     this.appThemeChanged();
   },
   methods: {
-    contextMenuClicked(id) {
-      var target = this.findMenuItemById(id);
-      if (id == "refresh")
-        location.reload();
-      this.updateStorage();
+    reset() {
+      location.reload();
+      // console.log('reset');
     },
-    startStorage() {
+    activate() {
+      console.log('activated');
+    },
+    togglePrefix(state) {
+      // console.log(`Receiving state of prefix as ${state}`)
+      this.showPrefix = state;
+    },
+    toggleSuffix(state) {
+      // console.log(`Receiving state of suffix as ${state}`)
+      this.showSuffix = state;
+    },
+    startStorage(storage) {
       storage.setItem('contextmenu', JSON.stringify(this.context.menu));
       storage.setItem('persistent', JSON.stringify(false));
-      storage.setItem('theme', 'darkest');
+      // storage.setItem('theme', 'darkest');
+      storage.setItem('prefix', this.showPrefix);
+      storage.setItem('suffix', this.showSuffix);
     },
     readStorage() {
       var storage = window.localStorage;
       if (!storage.length) {
         console.log('There was no pre-existing session data');
-        this.startStorage();
+        // this.startStorage();
         // storage.setItem('appName', self.activeApp);
       } else {
         console.log('Detected previous session data');
-        // this.context.menu = JSON.parse(storage.getItem('contextmenu'));
-        // this.persistent = JSON.parse(storage.getItem('persistent'));
+        this.context.menu = JSON.parse(storage.getItem('contextmenu'));
+        this.persistent = JSON.parse(storage.getItem('persistent'));
         // this.activeTheme = storage.getItem('theme');
         // this.activeApp = storage.getItem('appName');
+        // this.showPrefix = storage.getItem('prefix');
+        // this.showSuffix = storage.getItem('suffix');
       }
-      console.log(storage);
+      this.showPrefix = this.context.menu[2].checked;
+      this.showSuffix = this.context.menu[3].checked;
+      // if (!this.showPrefix)
+      console.log(`${this.showPrefix} : ${this.showSuffix}`);
     },
     updateStorage() {
       var storage = window.localStorage, self = this;
@@ -374,13 +409,6 @@ var app = new Vue({
         Persistent: ${this.persistent}
         Theme: ${this.activeTheme}`)
     },
-    setContextMenu() {
-      var self = this;
-      // console.log('setting context menu');
-      csInterface.setContextMenuByJSON(self.menuString, self.contextMenuClicked);
-      csInterface.updateContextMenuItem('persistent', true, self.persistent);
-      // this.handleConfig();
-    },
     appThemeChanged(event) {
       var skinInfo = JSON.parse(window.__adobe_cep__.getHostEnvironment()).appSkinInfo;
       this.findTheme(skinInfo);
@@ -389,55 +417,55 @@ var app = new Vue({
     },
     findTheme(appSkin) {
       // AE uses smooth gradients. Isolate the others apps from it
-      if ((this.$root.activeApp == 'ILST') || (this.$root.activeApp == 'PHXS')) {
+      if ((this.activeApp == 'ILST') || (this.activeApp == 'PHXS')) {
         if (toHex(appSkin.panelBackgroundColor.color) == '#f0f0f0') {
           this.activeTheme = 'lightest';
-          if (this.$root.activeApp == 'ILST') {
+          if (this.activeApp == 'ILST') {
             this.setCSS('color-scroll', '#fbfbfb');
             this.setCSS('color-scroll-thumb', '#dcdcdc');
             this.setCSS('color-scroll-thumb-hover', '#a6a6a6');
-          } else if (this.$root.activeApp == 'PHXS') {
+          } else if (this.activeApp == 'PHXS') {
             this.setCSS('color-scroll', '#e3e3e3');
             this.setCSS('color-scroll-thumb', '#bdbdbd');
             this.setCSS('color-scroll-thumb-hover', '#bdbdbd');
           }
         } else if (toHex(appSkin.panelBackgroundColor.color) == '#b8b8b8') {
           this.activeTheme = 'light';
-          if (this.$root.activeApp == 'ILST') {
+          if (this.activeApp == 'ILST') {
             this.setCSS('color-scroll', '#c4c4c4');
             this.setCSS('color-scroll-thumb', '#a8a8a8');
             this.setCSS('color-scroll-thumb-hover', '#7b7b7b');
-          } else if (this.$root.activeApp == 'PHXS') {
+          } else if (this.activeApp == 'PHXS') {
             this.setCSS('color-scroll', '#ababab');
             this.setCSS('color-scroll-thumb', '#858585');
             this.setCSS('color-scroll-thumb-hover', '#858585');
           }
         } else if (toHex(appSkin.panelBackgroundColor.color) == '#535353') {
           this.activeTheme = 'dark';
-          if (this.$root.activeApp == 'ILST') {
+          if (this.activeApp == 'ILST') {
             this.setCSS('color-scroll', '#4b4b4b');
             this.setCSS('color-scroll-thumb', '#606060');
             this.setCSS('color-scroll-thumb-hover', '#747474');
-          } else if (this.$root.activeApp == 'PHXS') {
+          } else if (this.activeApp == 'PHXS') {
             this.setCSS('color-scroll', '#4a4a4a');
             this.setCSS('color-scroll-thumb', '#696969');
             this.setCSS('color-scroll-thumb-hover', '#696969');
           }
         } else if (toHex(appSkin.panelBackgroundColor.color) == '#323232') {
           this.activeTheme = 'darkest';
-          if (this.$root.activeApp == 'ILST') {
+          if (this.activeApp == 'ILST') {
             this.setCSS('color-scroll', '#2a2a2a');
             this.setCSS('color-scroll-thumb', '#383838');
             this.setCSS('color-scroll-thumb-hover', '#525252');
-          } else if (this.$root.activeApp == 'PHXS') {
+          } else if (this.activeApp == 'PHXS') {
             this.setCSS('color-scroll', '#292929');
             this.setCSS('color-scroll-thumb', '#474747');
             this.setCSS('color-scroll-thumb-hover', '#474747');
           }
         }
         this.setCSS('color-bg', toHex(appSkin.panelBackgroundColor.color));
-        this.setCSS('color-ui-hover', this.$root.getCSS('color-scroll'));
-        if (this.$root.activeApp == 'ILST') {
+        this.setCSS('color-ui-hover', this.getCSS('color-scroll'));
+        if (this.activeApp == 'ILST') {
           this.setCSS('scroll-radius', '20px');
           this.setCSS('thumb-radius', '10px');
         } else {
@@ -455,6 +483,27 @@ var app = new Vue({
         this.setCSS('scroll-radius', '20px');
         this.setCSS('thumb-width', '10px');
       }
+    },
+    findMenuItemParentById(id) {
+      var result;
+      for (var i = 0; i < this.context.menu.length; i++) {
+        for (let [key, value] of Object.entries(this.context.menu[i])) {
+          if (key == "menu") {
+            for (var v = 0; v < value.length; v++) {
+              // console.log(value[v])
+              for (let [index, data] of Object.entries(value[v])) {
+                // console.log(`${index} : ${data}`)
+                if ((index == "id") && (data == id))
+                  result = this.context.menu[i];
+              }
+            }
+          }
+          if ((key == "id") && (value == id)) {
+            result = this.context.menu[i];
+          }
+        }
+      }
+      return result;
     },
     findMenuItemById(id) {
       var result;
@@ -474,6 +523,60 @@ var app = new Vue({
         }
       }
       return result;
+    },
+    toggleMenuItemSiblings(parent, exclude, state) {
+      if (parent.length) {
+        for (var i = 0; i < parent.length; i++) {
+          if (parent[i].id !== exclude)
+            console.log(`Should turn ${parent[i].id} to ${state}`)
+            csInterface.updateContextMenuItem(parent[i].id, true, state);
+        }
+      }
+    },
+    setContextMenu() {
+      var self = this;
+      csInterface.setContextMenuByJSON(self.menuString, self.contextMenuClicked);
+      csInterface.updateContextMenuItem('persistent', true, self.persistent);
+    },
+    contextMenuClicked(id) {
+      var target = this.findMenuItemById(id), mirror;
+      var parent = this.findMenuItemParentById(id);
+      if ((target.checkable) && (target.ingroup) && (!target.checked)) {
+        console.log(`${target.id} is ${target.checked}`)
+        this.toggleMenuItemSiblings(parent.menu, target.id, target.checked);
+        target.checked = !target.checked;
+        console.log(`${target.id} is ${target.checked}`)
+        csInterface.updateContextMenuItem(target.id, true, target.checked);
+      } else if ((target.checkable) && (target.ingroup) && (target.checked)) {
+        console.log('Already checked');
+        csInterface.updateContextMenuItem(id, true, true);
+      } else {
+        target.checked = !target.checked;
+        // target.checked = true;
+      }
+      if (target.id == this.context.menu[5].menu[0].id) {
+        mirror = this.context.menu[5].menu[0];
+        mirror.checked = target.checked;
+        this.context.menu[5].menu[1].checked = !target.checked;
+        // console.log('This is by sequence')
+      } else if (target.id == this.context.menu[5].menu[1].id) {
+        mirror = this.context.menu[5].menu[1];
+        mirror.checked = target.checked;
+        this.context.menu[5].menu[0].checked = !target.checked;
+        // console.log('This is blank')
+      }
+      if (id == 'refresh')
+        location.reload();
+      if (id == 'suffix'||'prefix') {
+        // Event.$emit(`${target.id}Toggle`, target.checked)
+        if (id == 'suffix') {
+          this.toggleSuffix(target.checked);
+        } else {
+          this.togglePrefix(target.checked);
+        }
+      }
+      console.log(target)
+      this.updateStorage();
     },
     handleResize(evt) {
       if (this.$root.activeApp == 'AEFT') {

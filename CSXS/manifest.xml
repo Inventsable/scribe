@@ -43,8 +43,8 @@
             </MinSize> -->
           </Geometry>
           <Icons>
-             <Icon Type="Normal">./UI/iconLight.png</Icon>
-             <Icon Type="RollOver">./UI/iconLightRollover.png</Icon>
+             <Icon Type="Normal">./assets/iconLight.png</Icon>
+             <Icon Type="RollOver">./assets/iconLightRollover.png</Icon>
           </Icons>
         </UI>
       </DispatchInfo>

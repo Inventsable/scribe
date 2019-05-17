@@ -21,13 +21,16 @@
   box-sizing: border-box;
   border: 1.35px solid var(--color-border);
   width: .65rem;
+  margin-left: .5rem;
 }
+
+
 
 .texter {
   display: flex;
   justify-content: flex-start;
   /* width: 100%; */
-  
+  flex-wrap: nowrap;
   font-size: .75rem;
   font-family: 'Rubik';
   margin: .5rem 0px 0px .5rem;
@@ -43,15 +46,30 @@
   padding: .25rem .5rem;
 }
 
-.texter-idle:not(:focus) {
+.texter-prefix {
+  border: 1.35px solid var(--color-border);
+  border-radius: .25rem;
+  max-width: 3rem;
+  margin-left: .25rem;
+  background-color: var(--color-input-bg);
+  color: var(--color-input-text);
+  padding: .25rem .5rem;
+}
+
+.texter-prefix-idle {
+  max-width: 3rem;
+  border: 1.35px solid var(--color-border);
+  border-radius: .25rem;
+  padding: .25rem .5rem;
+  margin-left: .25rem;
+}
+
+.texter-idle:not(:focus), .texter-prefix-idle:not(:focus) {
   background-color: var(--color-input-idle);
   color: var(--color-input-text);
 }
 
-.texter-input:focus, .texter-idle:focus {
-  /* border: 2px solid blue; */
+.texter-input:focus, .texter-idle:focus, .texter-prefix:focus, .texter-prefix-idle:focus {
   background-color: var(--color-input-focus);
   color: var(--color-input-text-focus);
-  /* outline-width: 0px; */
-  /* border-color: var(--color-focus); */
 }

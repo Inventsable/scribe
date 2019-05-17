@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ExtensionList>
-    <Extension Id="com.scribe.panel">
+    <Extension Id="inventsable.scribe.panel">
         <HostList>
             <Host Name="ILST" Port="2052"/>
         </HostList>
